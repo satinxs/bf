@@ -1,14 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-typedef struct {
-    int code;
-} op_t;
-
-typedef struct {
-    op_t* ops;
-    int length, capacity;
-} op_array_t;
+#include "utils.h"
 
 op_array_t* array_init()
 {
@@ -70,4 +60,13 @@ char* read_file(char* filename)
     }
 
     return NULL;
+}
+
+int find_op(char token)
+{
+    for (int i = 0; valid_ops[i] > 0; i++)
+        if (valid_ops[i] == token)
+            return i;
+
+    return -1;
 }

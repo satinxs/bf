@@ -1,22 +1,17 @@
 #include <stdio.h>
 #include <time.h>
 
+#define GEN_2
+
 #include "utils.c"
 
-#define MEMORY_SIZE 1024
+#ifdef GEN_1
+#include "compiler-gen1.c"
+#endif
 
-#define OP_SHIFT_LEFT 0
-#define OP_SHIFT_RIGHT 1
-#define OP_READ 2
-#define OP_WRITE 3
-#define OP_SUB 4
-#define OP_ADD 5
-#define OP_BRACKET_LEFT 6
-#define OP_BRACKET_RIGHT 7
-#define OP_END 8
-
-//First pass
-#include "compiler-1st-pass.c"
+#ifdef GEN_2
+#include "compiler-gen2.c"
+#endif
 
 op_array_t* do_compilation(char* file);
 void do_interpret(op_array_t* program);
@@ -47,7 +42,11 @@ int main(int argc, char** argv)
 
 op_array_t* do_compilation(char* file)
 {
-    return compiler_pass1(file);
+    op_array_t* program;
+
+    program = compiler_pass1(file);
+
+    return program;
 }
 
 void do_interpret(op_array_t* program)

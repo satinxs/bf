@@ -1,13 +1,3 @@
-static const char valid_ops[] = "<>,.-+[]";
-static int find_op(char token)
-{
-    for (int i = 0; valid_ops[i] > 0; i++)
-        if (valid_ops[i] == token)
-            return i;
-
-    return -1;
-}
-
 op_array_t* compiler_pass1(char* source)
 {
     op_array_t* array = array_init();
