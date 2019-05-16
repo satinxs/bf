@@ -58,7 +58,7 @@
     }
 #endif
 
-#ifndef USE_CGOTO
+#ifndef CGOTO
 void interpret(op_array_t* program)
 {
     int* memory = calloc(MEMORY_SIZE, sizeof(int));
@@ -138,19 +138,19 @@ void interpret(op_array_t* program)
     goto* jump_table[op.code]
 
     P_SHIFT_LEFT:
-        mp--;
+        _SHIFT_LEFT();
         DISPATCH();
 
     P_SHIFT_RIGHT:
-        mp++;
+        _SHIFT_RIGHT();
         DISPATCH();
 
     P_ADD:
-        memory[mp]++;
+        _ADD();
         DISPATCH();
 
     P_SUB:
-        memory[mp]--;
+        _SUB();
         DISPATCH();
 
     P_WRITE:
@@ -162,14 +162,11 @@ void interpret(op_array_t* program)
         DISPATCH();
 
     P_BRACKET_LEFT:
-        if (memory[mp] == 0)
-            ip = op.ref;
-
+        _BRACKET_LEFT();
         DISPATCH();
 
     P_BRACKET_RIGHT:
-        if (memory[mp] != 0)
-            ip = op.ref;
+        _BRACKET_RIGHT();
 
         DISPATCH();
 
