@@ -1,20 +1,14 @@
 #include <stdio.h>
 #include <time.h>
 
-#define GEN_2
-
-#include "utils.c"
-
-#ifdef GEN_1
-#include "compiler-gen1.c"
-#endif
-
-#ifdef GEN_2
-#include "compiler-gen2.c"
-#endif
+#include "utils.h"
 
 op_array_t* do_compilation(char* file);
 void do_interpret(op_array_t* program);
+
+void interpret(op_array_t* program);
+
+#include "compiler.h"
 
 int main(int argc, char** argv)
 {
@@ -42,14 +36,31 @@ int main(int argc, char** argv)
 
 op_array_t* do_compilation(char* file)
 {
-    op_array_t* program;
+    op_array_t* tmp = NULL;
+    op_array_t* program = compiler_pass1(file);
 
-    program = compiler_pass1(file);
+#ifdef OP_RUN_LENGTH
+    tmp = program;
+
+    program = compiler_op_run_length(program);
+
+    array_destroy(tmp);
+    tmp = NULL;
+#endif
+
+#ifdef JUMP_PRECALC
+    tmp = program;
+
+    program = compiler_jump_precalc(program);
+
+    array_destroy(tmp);
+    tmp = NULL;
+#endif
 
     return program;
 }
 
 void do_interpret(op_array_t* program)
 {
-    interpret_pass1(program);
+    interpret(program);
 }

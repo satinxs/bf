@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,9 +30,21 @@ op_array_t* array_init();
 void array_add(op_array_t* array, op_t op);
 op_t array_get(op_array_t* array, int index);
 void array_destroy(op_array_t* array);
+op_array_t* array_copy(op_array_t* source);
 
 char* read_file(char* filename);
 
-const char valid_ops[] = "<>,.-+[]";
-
 int find_op(char token);
+
+#define JUMP_PRECALC
+#define OP_RUN_LENGTH
+#define CGOTO
+
+#ifdef SINGLE_PASS
+
+#undef JUMP_PRECALC
+#undef OP_RUN_LENGTH
+
+#endif
+
+#endif

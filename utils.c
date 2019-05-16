@@ -39,6 +39,15 @@ void array_destroy(op_array_t* array)
     free(array);
 }
 
+op_array_t* array_copy(op_array_t* source)
+{
+    op_array_t* output = array_init();
+    for (int i = 0; i < source->length; i++)
+        array_add(output, array_get(source, i));
+
+    return output;
+}
+
 char* read_file(char* filename)
 {
     FILE* f = fopen(filename, "rb");
@@ -61,6 +70,8 @@ char* read_file(char* filename)
 
     return NULL;
 }
+
+static const char valid_ops[] = "<>,.-+[]";
 
 int find_op(char token)
 {
