@@ -1,62 +1,21 @@
 #include "utils.h"
 
-#ifdef OP_RUN_LENGTH
 #define _ADD() memory[mp] += op.ref
 #define _SUB() memory[mp] -= op.ref
 #define _SHIFT_LEFT() mp -= op.ref
 #define _SHIFT_RIGHT() mp += op.ref
-#else
-#define _ADD() memory[mp]++
-#define _SUB() memory[mp]--
-#define _SHIFT_LEFT() mp--
-#define _SHIFT_RIGHT() mp++
-#endif
+#define _CLEAR() memory[mp] = 0
 
-#ifdef JUMP_PRECALC
-#define _BRACKET_LEFT()  \
-    if (memory[mp] == 0) \
-    ip = op.ref
-
-#define _BRACKET_RIGHT() \
-    if (memory[mp] != 0) \
-    ip = op.ref
-#else
-#define _BRACKET_LEFT()                                           \
-    if (memory[mp] == 0) {                                        \
-        int bracket_nesting = 1;                                  \
-        int saved_ip = ip;                                        \
-        while (bracket_nesting && ++ip < program->length)         \
-            if (program->ops[ip].code == OP_BRACKET_RIGHT)        \
-                bracket_nesting--;                                \
-            else if (program->ops[ip].code == OP_BRACKET_LEFT)    \
-                bracket_nesting++;                                \
-        if (!bracket_nesting)                                     \
-            break;                                                \
-        else {                                                    \
-            printf("Unmatched '[' at position = %d\n", saved_ip); \
-            exit(-1);                                             \
-        }                                                         \
+#define _BRACKET_LEFT()    \
+    if (memory[mp] == 0) { \
+        ip = op.ref;       \
     }
 
-#define _BRACKET_RIGHT()                                        \
-    if (memory[mp] != 0) {                                      \
-        int bracket_nesting = 1;                                \
-        int saved_ip = ip;                                      \
-        while (bracket_nesting && ip > 0) {                     \
-            ip--;                                               \
-            if (program->ops[ip].code == OP_BRACKET_LEFT)       \
-                bracket_nesting--;                              \
-            else if (program->ops[ip].code == OP_BRACKET_RIGHT) \
-                bracket_nesting++;                              \
-        }                                                       \
-        if (!bracket_nesting)                                   \
-            break;                                              \
-        else {                                                  \
-            printf("Unmatched ']' at ip = %d\n", saved_ip);     \
-            exit(-1);                                           \
-        }                                                       \
+#define _BRACKET_RIGHT()   \
+    if (memory[mp] != 0) { \
+        ip = op.ref;       \
     }
-#endif
+// program->ops[ip].calls++;
 
 #ifndef CGOTO
 void interpret(op_array_t* program)
@@ -102,6 +61,9 @@ void interpret(op_array_t* program)
             _BRACKET_RIGHT();
             break;
 
+        case OP_CLEAR:
+            _CLEAR();
+            break;
         case OP_END:
             return;
 
@@ -125,6 +87,7 @@ void interpret(op_array_t* program)
         &&P_READ, &&P_WRITE,
         &&P_SUB, &&P_ADD,
         &&P_BRACKET_LEFT, &&P_BRACKET_RIGHT,
+        &&P_CLEAR,
         &&P_END
     };
 
@@ -167,7 +130,10 @@ void interpret(op_array_t* program)
 
     P_BRACKET_RIGHT:
         _BRACKET_RIGHT();
+        DISPATCH();
 
+    P_CLEAR:
+        _CLEAR();
         DISPATCH();
 
     P_END:

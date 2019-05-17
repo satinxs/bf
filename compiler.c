@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdbool.h>
 
 op_array_t* compiler_pass1(char* source)
 {
@@ -21,12 +22,12 @@ op_array_t* compiler_pass1(char* source)
 
     op_t op_end;
     op_end.code = OP_END;
+    op_end.ref = 0;
+
     array_add(array, op_end);
 
     return array;
 }
-
-#ifdef JUMP_PRECALC
 
 static void find_forwards_reference(op_array_t* program, int index)
 {
@@ -64,12 +65,9 @@ op_array_t* compiler_jump_precalc(op_array_t* source)
             find_forwards_reference(output, i);
     }
 
+    array_destroy(source);
     return output;
 }
-
-#endif
-
-#ifdef OP_RUN_LENGTH
 
 op_array_t* compiler_op_run_length(op_array_t* source)
 {
@@ -91,7 +89,43 @@ op_array_t* compiler_op_run_length(op_array_t* source)
         }
     }
 
+    array_destroy(source);
     return output;
 }
 
-#endif
+bool find_match(op_array_t* source, int index, op_type_t* what)
+{
+    for (int i = 0; (index + i) < source->length; i++) {
+        if (what[i] == OP_END)
+            return true;
+
+        if (source->ops[index + i].code != what[i])
+            return false;
+    }
+
+    return false;
+}
+
+op_array_t* compiler_find_common_loops(op_array_t* source)
+{
+    //[-]
+    op_type_t match_clear[] = { OP_BRACKET_LEFT, OP_SUB, OP_BRACKET_RIGHT, OP_END };
+
+    op_array_t* output = array_init();
+
+    for (int i = 0; i < source->length;) {
+        if (find_match(source, i, match_clear)) {
+            op_t newop;
+            newop.code = OP_CLEAR;
+            newop.ref = 0;
+            array_add(output, newop);
+            i += 3;
+        } else {
+            array_add(output, source->ops[i]);
+            i++;
+        }
+    }
+
+    array_destroy(source);
+    return output;
+}

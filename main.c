@@ -1,4 +1,6 @@
+#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 #include "utils.h"
@@ -10,20 +12,95 @@ void interpret(op_array_t* program);
 
 #include "compiler.h"
 
+void print_c_version(op_array_t* program)
+{
+    printf("#include <stdio.h>\n");
+    printf("#include <stdlib.h>\n");
+    printf("#include <time.h>\n");
+    printf("int main(){\n");
+    printf("int* memory = calloc(%d, sizeof(int));\n", MEMORY_SIZE);
+    printf("int mp = 0, start=clock(), end;\n");
+
+    for (int i = 0; i < program->length; i++) {
+        op_t op = program->ops[i];
+        switch (op.code) {
+        case OP_SHIFT_LEFT:
+            printf("mp -= %d;\n", op.ref);
+            break;
+
+        case OP_SHIFT_RIGHT:
+            printf("mp += %d;\n", op.ref);
+            break;
+
+        case OP_READ:
+            printf("memory[mp] = getchar();\n");
+            break;
+
+        case OP_WRITE:
+            printf("putchar(memory[mp]);\n");
+            break;
+
+        case OP_ADD:
+            printf("memory[mp] += %d;\n", op.ref);
+            break;
+
+        case OP_SUB:
+            printf("memory[mp] -= %d;\n", op.ref);
+            break;
+
+        case OP_BRACKET_LEFT:
+            printf("J%d:\n", i);
+            printf("if (memory[mp] == 0) goto J%d;\n", op.ref);
+            break;
+
+        case OP_BRACKET_RIGHT:
+            printf("J%d:\n", i);
+            printf("if (memory[mp] != 0) goto J%d;\n", op.ref);
+            break;
+
+        case OP_CLEAR:
+            printf("memory[mp] = 0;\n");
+            break;
+
+        case OP_END:
+            printf("end = clock();\n");
+            printf("printf(\"Elapsed: %%dms\\n\", end - start);\n");
+            break;
+        }
+    }
+
+    printf("return 0;\n");
+    printf("}\n");
+}
+
 int main(int argc, char** argv)
 {
     if (argc == 1) {
-        printf("Usage: bf <file.bf>\n");
+        printf("Usage: bf [-c] <file.bf>\n");
         return 0;
     }
 
-    char* file = read_file(argv[1]);
+    char* file;
+    bool flag_no_interpret = false;
+
+    if (argc == 3 && strcmp(argv[1], "-c") == 0) {
+        file = read_file(argv[2]);
+        flag_no_interpret = true;
+    } else
+        file = read_file(argv[1]);
 
     int start, end;
 
     start = clock();
     op_array_t* ops = do_compilation(file);
     end = clock();
+
+    if (flag_no_interpret) {
+        print_c_version(ops);
+
+        return 0;
+    }
+
     printf("Compilation took %dms\n", end - start);
 
     start = clock();
@@ -36,26 +113,13 @@ int main(int argc, char** argv)
 
 op_array_t* do_compilation(char* file)
 {
-    op_array_t* tmp = NULL;
     op_array_t* program = compiler_pass1(file);
-
-#ifdef OP_RUN_LENGTH
-    tmp = program;
 
     program = compiler_op_run_length(program);
 
-    array_destroy(tmp);
-    tmp = NULL;
-#endif
-
-#ifdef JUMP_PRECALC
-    tmp = program;
+    program = compiler_find_common_loops(program);
 
     program = compiler_jump_precalc(program);
-
-    array_destroy(tmp);
-    tmp = NULL;
-#endif
 
     return program;
 }

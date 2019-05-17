@@ -6,19 +6,23 @@
 
 #define MEMORY_SIZE 1024
 
-#define OP_SHIFT_LEFT 0
-#define OP_SHIFT_RIGHT 1
-#define OP_READ 2
-#define OP_WRITE 3
-#define OP_SUB 4
-#define OP_ADD 5
-#define OP_BRACKET_LEFT 6
-#define OP_BRACKET_RIGHT 7
-#define OP_END 8
+typedef enum {
+    OP_SHIFT_LEFT,
+    OP_SHIFT_RIGHT,
+    OP_READ,
+    OP_WRITE,
+    OP_SUB,
+    OP_ADD,
+    OP_BRACKET_LEFT,
+    OP_BRACKET_RIGHT,
+    OP_CLEAR,
+    OP_END
+} op_type_t;
 
 typedef struct {
-    int code;
+    op_type_t code;
     int ref;
+    // int calls;
 } op_t;
 
 typedef struct {
@@ -36,15 +40,6 @@ char* read_file(char* filename);
 
 int find_op(char token);
 
-#define JUMP_PRECALC
-#define OP_RUN_LENGTH
 #define CGOTO
-
-#ifdef SINGLE_PASS
-
-#undef JUMP_PRECALC
-#undef OP_RUN_LENGTH
-
-#endif
 
 #endif

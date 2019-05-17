@@ -3,13 +3,8 @@ CARGS=-o bf -Wall
 CARGS_RELEASE=-O3
 SRC=main.c utils.c compiler.c interpreter.c
 
-# Full optimization is off by default
-
 default: 
 	$(CC) $(SRC) $(CARGS) $(CARGS_RELEASE)
-
-single-pass:
-	$(CC) $(SRC) $(CARGS) -DSINGLE_PASS
 
 tcc:
 	tcc $(SRC) -o bf.exe
