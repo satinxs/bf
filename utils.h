@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MEMORY_SIZE 1024
+#define MEMORY_SIZE 30000
 
 typedef enum {
     OP_SHIFT_LEFT,

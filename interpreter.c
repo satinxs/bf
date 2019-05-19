@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdint.h>
 
 #define _ADD() memory[mp] += op.ref
 #define _SUB() memory[mp] -= op.ref
@@ -20,7 +21,7 @@
 #ifndef CGOTO
 void interpret(op_array_t* program)
 {
-    int* memory = calloc(MEMORY_SIZE, sizeof(int));
+    uint8_t* memory = calloc(MEMORY_SIZE, sizeof(uint8_t));
 
     int ip = 0, //Instruction pointer
         mp = 0; //Memory pointer
@@ -77,7 +78,7 @@ void interpret(op_array_t* program)
 #else
 void interpret(op_array_t* program)
 {
-    int* memory = calloc(MEMORY_SIZE, sizeof(int));
+    uint8_t* memory = calloc(MEMORY_SIZE, sizeof(uint8_t));
 
     int ip = 0; //Instruction pointer
     int mp = 0; //Memory pointer
