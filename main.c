@@ -1,8 +1,10 @@
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 
+#include "jit.h"
 #include "utils.h"
 
 op_array_t* do_compilation(char* file);

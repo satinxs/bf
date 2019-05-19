@@ -1,7 +1,7 @@
 CC=gcc
 CARGS=-o bf -Wall
 CARGS_RELEASE=-O3
-SRC=main.c utils.c compiler.c interpreter.c
+SRC=$(wildcard *.c)
 
 default: 
 	$(CC) $(SRC) $(CARGS) $(CARGS_RELEASE)
