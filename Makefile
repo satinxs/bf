@@ -1,6 +1,6 @@
 CC=gcc
 CARGS=-o bf -Wall
-CARGS_RELEASE=-O3
+CARGS_RELEASE=-O3 -DFULL_OPTIMIZATION -flto
 SRC=$(wildcard *.c)
 
 default: 
@@ -19,3 +19,6 @@ minimal: tcc strip upx
 
 debug:
 	$(CC) $(SRC) -DFULL_OPTIMIZATION $(CARGS) -g -O0 -fno-omit-frame-pointer
+
+clean:
+	rm *.exe
